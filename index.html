@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Gift</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:wght@400;500;600&display=swap');
+
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      font-family:Arial, sans-serif;
+      background:#000;
+      min-height:100vh;
+      overflow:hidden;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      position:relative;
+    }
+
+    .hearts{
+      position:fixed;
+      inset:0;
+      overflow:hidden;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .heart{
+      position:absolute;
+      bottom:-40px;
+      color:#ff6fb1;
+      opacity:0.85;
+      animation:floatUp linear forwards;
+    }
+
+    @keyframes floatUp{
+      0%{transform:translateY(0) scale(.8);opacity:0;}
+      10%{opacity:.85;}
+      100%{transform:translateY(-120vh) scale(1.25);opacity:0;}
+    }
+
+    .page{
+      position:absolute;
+      inset:0;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:24px;
+      opacity:0;
+      transform:translateY(24px) scale(.98);
+      pointer-events:none;
+      transition:opacity .5s ease, transform .5s ease;
+      z-index:1;
+    }
+
+    .page.active{
+      opacity:1;
+      transform:translateY(0) scale(1);
+      pointer-events:auto;
+    }
+
+    #letterPage{
+      align-items:flex-start;
+      padding-top:40px;
+    }
+
+    .card{
+      background:#ff9fcf;
+      color:#111;
+      width:min(775px, 90vw);
+      padding:32px;
+      border-radius:22px;
+      text-align:center;
+      box-shadow:0 18px 50px rgba(0,0,0,.45);
+    }
+
+    .main-card{
+      margin-top:-230px;
+    }
+
+    h1{
+      margin:0 0 24px;
+      font-size:clamp(24px,3vw,34px);
+      line-height:1.2;
+    }
+
+    .envelope-row{
+      display:flex;
+      justify-content:center;
+      gap:34px;
+      position:relative;
+      flex-wrap:wrap;
+    }
+
+    .envelope-wrap{
+      width:220px;
+      height:170px;
+      position:relative;
+    }
+
+    .envelope-btn{
+      background:none;
+      border:none;
+      cursor:pointer;
+      width:220px;
+      height:150px;
+      position:relative;
+      transition:transform .25s ease;
+    }
+
+    .envelope-btn:hover{
+      transform:translateY(-5px);
+    }
+
+    .envelope{
+      position:absolute;
+      inset:0;
+    }
+
+    .env-back{
+      position:absolute;
+      inset:0;
+      background:#fff;
+      border-radius:8px;
+    }
+
+    .env-pocket{
+      position:absolute;
+      bottom:0;
+      width:100%;
+      height:65%;
+      background:#ffd6e8;
+      clip-path:polygon(0 0,50% 50%,100% 0,100% 100%,0 100%);
+    }
+
+    .env-letter{
+      position:absolute;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      width:78%;
+      height:70%;
+      background:#fff;
+      border-radius:6px;
+      transition:transform .4s ease;
+    }
+
+    .env-flap{
+      position:absolute;
+      top:0;
+      width:100%;
+      height:60%;
+      background:#ffc2dd;
+      clip-path:polygon(0 0,100% 0,50% 100%);
+      transform-origin:top;
+      transition:transform .4s ease;
+    }
+
+    .heart-seal{
+      position:absolute;
+      left:50%;
+      top:52%;
+      transform:translate(-50%,-50%);
+      background:#ff2d7a;
+      color:white;
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:16px;
+    }
+
+    .envelope-btn:hover .env-flap,
+    .envelope-btn.open-preview .env-flap{
+      transform:rotateX(160deg);
+    }
+
+    .envelope-btn:hover .env-letter,
+    .envelope-btn.open-preview .env-letter{
+      transform:translateX(-50%) translateY(-20px);
+    }
+
+    .label{
+      position:absolute;
+      bottom:-42px;
+      left:50%;
+      transform:translateX(-50%);
+      font-weight:bold;
+      width:100%;
+      white-space:normal;
+      line-height:1.15;
+      font-size:17px;
+    }
+
+    #noWrap{
+      transition:transform .14s ease-out;
+      will-change:transform;
+    }
+
+    .message-text{
+      font-size:28px;
+      font-weight:700;
+      margin:20px 0;
+      line-height:1.2;
+    }
+
+    .no-gif{
+      display:block;
+      width:min(320px,80vw);
+      margin:0 auto 18px;
+      border-radius:12px;
+      box-shadow:0 10px 24px rgba(0,0,0,.25);
+    }
+
+    .back-btn{
+      border:none;
+      border-radius:999px;
+      padding:14px 24px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .letter-card{
+      text-align:left;
+      background:linear-gradient(180deg, #ffd9ea 0%, #ffb9d9 100%);
+      width:min(860px, 92vw);
+      max-height:85vh;
+      overflow:auto;
+      padding:32px;
+    }
+
+    .letter-heading{
+      font-family:"Allura", cursive;
+      font-size:clamp(42px,5vw,62px);
+      color:#111;
+      text-align:center;
+      margin:0 0 20px;
+      line-height:1;
+      font-weight:400;
+      text-shadow:0 1px 0 rgba(255,255,255,.35);
+    }
+
+    .paper{
+      position:relative;
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,.45), transparent 28%),
+        linear-gradient(180deg, #fffdf8 0%, #f8efdf 100%);
+      border-radius:18px;
+      padding:34px 32px;
+      min-height:260px;
+      line-height:1.95;
+      white-space:pre-wrap;
+      font-size:22px;
+      font-family:"Cormorant Garamond", serif;
+      color:#2b2118;
+      box-shadow:
+        inset 0 0 0 1px rgba(120,92,60,.08),
+        0 16px 32px rgba(0,0,0,.16);
+      overflow:hidden;
+    }
+
+    .paper::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(120,92,60,.035) 0px,
+          rgba(120,92,60,.035) 1px,
+          transparent 1px,
+          transparent 30px
+        );
+      opacity:.45;
+      pointer-events:none;
+    }
+
+    .paper::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,.22), transparent 18%),
+        radial-gradient(circle at 80% 30%, rgba(255,255,255,.14), transparent 20%),
+        radial-gradient(circle at 50% 80%, rgba(120,92,60,.05), transparent 24%);
+      pointer-events:none;
+    }
+
+    .typed-content{
+      position:relative;
+      z-index:1;
+    }
+
+    .cursor{
+      position:relative;
+      z-index:1;
+      animation:blink 1s steps(1) infinite;
+    }
+
+    @keyframes blink{
+      50%{opacity:0;}
+    }
+
+    .letter-actions{
+      text-align:center;
+      margin-top:18px;
+    }
+
+    .letter-actions .back-btn{
+      background:#fff7fb;
+      color:#1a1a1a;
+      box-shadow:0 8px 18px rgba(0,0,0,.12);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="hearts" id="hearts"></div>
+
+  <div class="page active" id="mainPage">
+    <div class="card main-card">
+      <h1>Choose which one you like more :)</h1>
+
+      <div class="envelope-row">
+        <div class="envelope-wrap" id="yesWrap">
+          <button class="envelope-btn" id="yesBtn" onclick="openLetterSequence()">
+            <div class="envelope">
+              <div class="env-back"></div>
+              <div class="env-letter"></div>
+              <div class="env-pocket"></div>
+              <div class="env-flap"></div>
+              <div class="heart-seal">❤</div>
+            </div>
+            <div class="label">Burgers and Taco Bell</div>
+          </button>
+        </div>
+
+        <div class="envelope-wrap" id="noWrap">
+          <button class="envelope-btn" id="noBtn" onclick="showPage('noPage')">
+            <div class="envelope">
+              <div class="env-back"></div>
+              <div class="env-letter"></div>
+              <div class="env-pocket"></div>
+              <div class="env-flap"></div>
+              <div class="heart-seal">❤</div>
+            </div>
+            <div class="label">SUCKING 40 DICKS</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="noPage">
+    <div class="card">
+      <img
+        src="https://media2.giphy.com/media/v1.Y2lkPTZjMDliOTUyc2F4bGluZzQ4OXZxNzNnc2lhN3V4c2cxOTRicm10MWdwYXV4c3M4aSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/l3HBbltOYjoNq/giphy.gif"
+        class="no-gif"
+        alt="Funny reaction gif"
+      >
+      <div class="message-text">no gu. no shade but try again</div>
+      <button class="back-btn" onclick="showPage('mainPage')">Let's try again</button>
+    </div>
+  </div>
+
+  <div class="page" id="letterPage">
+    <div class="card letter-card">
+      <div class="letter-heading">Dear Sylvia</div>
+
+      <div class="paper">
+        <span class="typed-content" id="typedText"></span><span class="cursor" id="cursor">|</span>
+      </div>
+
+      <div class="letter-actions">
+        <button class="back-btn" onclick="resetLetterAndGoHome()">Go Back</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const pages = document.querySelectorAll(".page");
+    const yesBtn = document.getElementById("yesBtn");
+    const noWrap = document.getElementById("noWrap");
+    const noBtn = document.getElementById("noBtn");
+    const typedText = document.getElementById("typedText");
+    const cursor = document.getElementById("cursor");
+
+    const letter = `Hey peanut joon. This is THE raq baby seyed writing. I feel like an inmate with a penpal when writing this idk why lol. Anyways, serious business only.
+
+To be completely honest, I wanted to spam you all day today. I ended our conversation off horribly last night, and I felt like dogshit for what I said. I couldn't get my point out clear enough and either way, I wasn't gonna make any sense because it was all overthought bullshit. Unfortunately, since I barely see you, I get in my own thoughts / feelings about what your day-to-day, and I don't think that is right at all. I don't see you every day or sit on your shoulder to live your life, and I can't assume just because I don't live your life either. I wanted to sincerely apologize for everything I've said, but I don'y want this to be another fake ass apology. I hate hurting you and making you feel bad in any sort of way, so if it happens again, I WANT you to block me. There's certain behaviors and interactions you can forget or ignore because they aren't serious, but this is a different case. I feel that I've taken giving an apology too lightly, and usually ignore the severity of the situation because "I can just say sorry and everyone forgets." I don't want this to be the case, and I don't want to bother you in the slightest, so this is the only conclusion I came up with. I either figure it out, or I let go of the situation. However, excusing it / dismissing how serious something is with petty words won't do anything.
+
+You've heard this a few times already, but I like you. Like ALOT. I don't catch feelings over the internet, but I notice myself thinking about you almost all the time. Whenever I'm digging in an iPad's accessibility settings for some reason, fixing a SKU scanner, or fucking up the printer, I'm wondering how funny peanut sounds when she does her professional voice for calls. I'm wondering what entertaining dialogue is being had between peanut and her coworkers. I'm wondering how much homework peanut has and when it is due. There was this one day I remember when I went to text you, the 3 dots showing you were already typing as I got into the chat (this reminded me of Discord LMFAOOO me and my kitten online at the same time *nerd emoji snorting like shit here*). I started cheesing like a burger because it was like we were thinking of each other at the SAME TIME! I don't remember most of my dreams, but it's gotta be either burgers or you because I've been sleeping GUUU. Burgers alone held my heart for the longest, but there is now a queen in there eating the burger basically. I love every last bit of conversation I have with you, I love when you text me first, I love how you start each call with "HULLO?". Truthfully, I haven't enjoyed talking to someone this much in a minute.`;
+
+    let index = 0;
+    let typing;
+
+    function showPage(id){
+      pages.forEach(p => p.classList.remove("active"));
+      setTimeout(() => document.getElementById(id).classList.add("active"), 120);
+    }
+
+    function getHumanDelay(currentChar, nextChar){
+      const speedMultiplier = 0.67;
+      const base = (46 + Math.random() * 22) * speedMultiplier;
+
+      if (currentChar === "\n" && nextChar === "\n") {
+        return (520 + Math.random() * 180) * speedMultiplier;
+      }
+
+      if (currentChar === "\n") {
+        return (140 + Math.random() * 60) * speedMultiplier;
+      }
+
+      if ([".", "!", "?"].includes(currentChar)) {
+        return (340 + Math.random() * 140) * speedMultiplier;
+      }
+
+      if ([",", ";", ":"].includes(currentChar)) {
+        return (180 + Math.random() * 90) * speedMultiplier;
+      }
+
+      if (currentChar === "-") {
+        return (130 + Math.random() * 70) * speedMultiplier;
+      }
+
+      if (currentChar === " ") {
+        return (28 + Math.random() * 18) * speedMultiplier;
+      }
+
+      return base;
+    }
+
+    function typeLetter(){
+      clearTimeout(typing);
+      typedText.textContent = "";
+      cursor.style.display = "inline";
+      index = 0;
+
+      function step(){
+        if(index < letter.length){
+          const currentChar = letter[index];
+          const nextChar = letter[index + 1] || "";
+
+          typedText.textContent += currentChar;
+          index++;
+
+          typing = setTimeout(step, getHumanDelay(currentChar, nextChar));
+        } else {
+          cursor.style.display = "none";
+        }
+      }
+
+      step();
+    }
+
+    function openLetterSequence(){
+      yesBtn.classList.add("open-preview");
+
+      setTimeout(() => {
+        showPage("letterPage");
+        setTimeout(typeLetter, 350);
+      }, 400);
+    }
+
+    function resetLetterAndGoHome(){
+      clearTimeout(typing);
+      typedText.textContent = "";
+      cursor.style.display = "inline";
+      yesBtn.classList.remove("open-preview");
+      showPage("mainPage");
+    }
+
+    function createHeart(){
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.innerHTML = "❤";
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.fontSize = 14 + Math.random() * 18 + "px";
+      heart.style.animationDuration = 4 + Math.random() * 4 + "s";
+      document.getElementById("hearts").appendChild(heart);
+
+      setTimeout(() => heart.remove(), 8000);
+    }
+
+    setInterval(createHeart, 450);
+
+    const noHome = { x: 0, y: 0 };
+    let dodgeActive = false;
+    let resetRAF = null;
+
+    function clamp(value, min, max){
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function getOriginalHoverZone(){
+      const rect = noBtn.getBoundingClientRect();
+      return {
+        left: rect.left - noHome.x,
+        right: rect.right - noHome.x,
+        top: rect.top - noHome.y,
+        bottom: rect.bottom - noHome.y
+      };
+    }
+
+    function cursorInsideOriginalZone(x, y){
+      const zone = getOriginalHoverZone();
+      return x >= zone.left && x <= zone.right && y >= zone.top && y <= zone.bottom;
+    }
+
+    function dodgeNoButton(e){
+      const zone = getOriginalHoverZone();
+
+      const zoneCenterX = (zone.left + zone.right) / 2;
+      const zoneCenterY = (zone.top + zone.bottom) / 2;
+
+      let dx = zoneCenterX - e.clientX;
+      let dy = zoneCenterY - e.clientY;
+
+      const distance = Math.hypot(dx, dy) || 1;
+      dx /= distance;
+      dy /= distance;
+
+      const strengthX = 120;
+      const strengthY = 85;
+
+      const jitterX = (Math.random() - 0.5) * 18;
+      const jitterY = (Math.random() - 0.5) * 14;
+
+      const targetX = clamp(dx * strengthX + jitterX, -130, 130);
+      const targetY = clamp(dy * strengthY + jitterY, -95, 95);
+
+      noWrap.style.transform = `translate(${targetX}px, ${targetY}px)`;
+    }
+
+    function resetNoButton(){
+      noWrap.style.transform = "translate(0px, 0px)";
+      dodgeActive = false;
+    }
+
+    document.addEventListener("mousemove", (e) => {
+      if (cursorInsideOriginalZone(e.clientX, e.clientY)) {
+        dodgeActive = true;
+        cancelAnimationFrame(resetRAF);
+        dodgeNoButton(e);
+      } else if (dodgeActive) {
+        resetRAF = requestAnimationFrame(resetNoButton);
+      }
+    });
+
+    noBtn.addEventListener("mouseenter", (e) => {
+      dodgeActive = true;
+      dodgeNoButton(e);
+    });
+  </script>
+</body>
+</html>
